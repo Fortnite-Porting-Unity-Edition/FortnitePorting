@@ -14,10 +14,6 @@
         <AvaloniaResource Include="Blender\**" />
         <AvaloniaResource Include="Unreal\**" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Unity\" />
-    </ItemGroup>
     
     <ItemGroup>
       <Compile Remove="Unreal\FortnitePorting\Source\FortnitePorting\FortnitePorting.Build.cs" />

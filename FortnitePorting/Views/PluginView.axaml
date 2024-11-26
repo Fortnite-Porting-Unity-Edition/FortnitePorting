@@ -23,6 +23,11 @@
                     <ui:ImageIconSource Source="/Assets/Icons/Unreal.png"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Unity" Tag="{x:Static fortnitePorting:EExportLocation.Unity}">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:ImageIconSource Source="/Assets/Icons/Unity.png"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
         </ui:NavigationView.MenuItems>
         
         <ui:Frame x:Name="ContentFrame"/>

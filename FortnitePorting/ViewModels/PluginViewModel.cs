@@ -28,6 +28,7 @@ public partial class PluginViewModel : ViewModelBase
 
     [ObservableProperty] private BlenderPluginViewModel _blender = new();
     [ObservableProperty] private UnrealPluginViewModel _unreal = new();
+    [ObservableProperty] private UnityPluginViewModel _unity = new();
     
 
     public void Navigate(EExportLocation exportLocation)

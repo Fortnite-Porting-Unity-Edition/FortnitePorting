@@ -79,6 +79,10 @@
         <DependentUpon>PlaceView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Plugin\UnityPluginView.axaml.cs">
+        <DependentUpon>UnityPluginView.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
 </Project>
