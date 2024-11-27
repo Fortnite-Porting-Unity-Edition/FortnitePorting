@@ -11,7 +11,7 @@ public class UEModel
 {
     public List<UEModelLOD> LODs { get; set; } = new();
     public List<ConvexCollision> Collisions { get; set; } = new();
-    public UEModelSkeleton? Skeleton { get; set; }
+    public UEModelSkeleton Skeleton { get; set; } //annotate nullable
 
     public static UEModel FromArchive(FArchiveReader ar, float scale)
     {
@@ -53,12 +53,12 @@ public class UEModelLOD
     public float[,] Vertices { get; private set; } = new float[0, 0];
     public int[,] Indices { get; private set; } = new int[0, 0];
     public float[,] Normals { get; private set; } = new float[0, 0];
-    public List<float[]> Tangents { get; private set; } = new List<float[]>();
-    public List<VertexColor> Colors { get; private set; } = new List<VertexColor>();
-    public List<float[,]> UVs { get; private set; } = new List<float[,]>();
-    public List<Material> Materials { get; private set; } = new List<Material>();
-    public List<MorphTarget> Morphs { get; private set; } = new List<MorphTarget>();
-    public List<Weight> Weights { get; private set; } = new List<Weight>();
+    public List<float[]> Tangents { get; private set; } = new();
+    public List<VertexColor> Colors { get; private set; } = new();
+    public List<float[,]> UVs { get; private set; } = new();
+    public List<Material> Materials { get; private set; } = new();
+    public List<MorphTarget> Morphs { get; private set; } = new();
+    public List<Weight> Weights { get; private set; } = new();
 
     public static UEModelLOD FromArchive(FArchiveReader ar, float scale)
     {
@@ -147,7 +147,7 @@ public class UEModelLOD
                     }
             }
 
-            ar.Skip(byteSize);
+            ar.Seek(currentPosition + byteSize);
         }
 
         return data;

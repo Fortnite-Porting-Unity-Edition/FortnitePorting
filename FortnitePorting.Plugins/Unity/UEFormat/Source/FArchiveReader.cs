@@ -119,6 +119,11 @@ public class FArchiveReader : IDisposable
         _data.Seek(size, SeekOrigin.Current);
     }
 
+    public void Seek(long pos)
+    {
+        _data.Seek(pos, SeekOrigin.Begin);
+    }
+
     public List<T> ReadBulkArray<T>(Func<FArchiveReader, T> predicate)
     {
         int count = ReadInt();

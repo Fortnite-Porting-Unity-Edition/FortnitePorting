@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Editor.UEFormat.Source.Enums;
+using Editor.UEFormat.Source.Readers;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +11,7 @@ public class UEFormat
     private static string MAGIC = "UEFORMAT";
 
     [MenuItem("Tools/Import UEFormat")]
-    public static void ImportCustomMesh()
+    public static void ImportUEFormat()
     {
         string filePath = EditorUtility.OpenFilePanel("Import UEFormat", "", "uemodel,ueanim");
         if (string.IsNullOrEmpty(filePath))
@@ -27,6 +29,7 @@ public class UEFormat
 
     private static bool ProcessAsset(string path)
     {
+        var importOptions = new UEModelOptions();
         byte[] fileBytes = System.IO.File.ReadAllBytes(path);
         if (fileBytes.Length == 0) return false;
         
@@ -71,10 +74,9 @@ public class UEFormat
         switch (header.Identifier)
         {
             case "UEMODEL":
+                UEFModelReader.ImportUEModelData(ar, header, importOptions);
                 break;
             case "UEANIM":
-                break;
-            case "UEWORLD":
                 break;
             default:
                 Debug.LogError($"Unknown identifier: {header.Identifier}");
