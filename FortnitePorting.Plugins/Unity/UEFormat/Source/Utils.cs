@@ -34,7 +34,7 @@
             float[,] result = new float[rows, colsToCopy];
             for (int i = 0; i < rows; i++)
             {
-                for (int j = colStart; j < colEnd; j++)
+                for (int j = colStart; j <= colEnd; j++)
                 {
                     result[i, j - colStart] = matrix[i, j];
                 }

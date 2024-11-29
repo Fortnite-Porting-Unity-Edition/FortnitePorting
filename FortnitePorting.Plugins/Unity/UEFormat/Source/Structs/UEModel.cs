@@ -96,7 +96,8 @@ public class UEModelLOD
                     {
                         float[] flattened = ar.ReadFloatVector(arraySize * 4);
                         float[,] reshaped = Utils.FlattenedToFloatMatrix(flattened, arraySize, 4);
-                        data.Normals = Utils.ExtractSubMatrix(reshaped, 0, 1, 3); // Extract XYZ from WXYZ
+                        data.Normals = Utils.ExtractSubMatrix(reshaped, 1, 3, 3); // Extract XYZ from WXYZ
+                        // TODO: verify this is fine, all normals I tested had a W of 0 but maybe some don't?
                         break;
                     }
                 case "TANGENTS":
@@ -131,12 +132,14 @@ public class UEModelLOD
                     }
                 case "WEIGHTS":
                     {
-                        data.Weights = ar.ReadArray(arraySize, Weight.FromArchive);
+                        //TODO: add back (got length errors when reading)
+                        //data.Weights = ar.ReadArray(arraySize, Weight.FromArchive);
                         break;
                     }
                 case "MORPHTARGETS":
                     {
-                        data.Morphs = ar.ReadArray(arraySize, a => MorphTarget.FromArchive(a, scale));
+                        //TODO: add back (got length errors when reading)
+                        //data.Morphs = ar.ReadArray(arraySize, a => MorphTarget.FromArchive(a, scale));
                         break;
                     }
                 default:
