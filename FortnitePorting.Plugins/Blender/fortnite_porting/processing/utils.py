@@ -49,12 +49,13 @@ def merge_armatures(parts):
 
     # move curve blendshapes to bottom if there are any
     if master_mesh := get_armature_mesh(bpy.context.active_object):
-        for shape_key in list(master_mesh.data.shape_keys.key_blocks):
-            if not shape_key.name.startswith('curves_'):
-                continue
-            master_mesh.active_shape_key_index = master_mesh.data.shape_keys.key_blocks.find(shape_key.name)
-            bpy.ops.object.shape_key_move(type='BOTTOM')
-        master_mesh.active_shape_key_index = 0
+        if master_mesh.data.shape_keys is not None:
+            for shape_key in list(master_mesh.data.shape_keys.key_blocks):
+                if not shape_key.name.startswith('curves_'):
+                    continue
+                master_mesh.active_shape_key_index = master_mesh.data.shape_keys.key_blocks.find(shape_key.name)
+                bpy.ops.object.shape_key_move(type='BOTTOM')
+            master_mesh.active_shape_key_index = 0
 
     # rebuild master bone tree
     bone_tree = {}
@@ -90,6 +91,10 @@ def merge_armatures(parts):
 
         if socket.casefold() == "hat":
             socket = "head"
+
+        # Could just change the constrain_object() calls to use socket.casefold(), but didn't want to assume all were lowercase
+        if socket == "Tail":
+            socket = "tail"
 
         constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], rot=False)
         constraint_object(skeleton, master_skeleton, socket, [0, 0, 0], loc=False, scale=False, use_inverse=True)

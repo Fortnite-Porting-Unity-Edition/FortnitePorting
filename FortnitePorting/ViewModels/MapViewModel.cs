@@ -35,6 +35,7 @@ using FortnitePorting.Shared.Extensions;
 using FortnitePorting.Shared.Framework;
 using FortnitePorting.Windows;
 using OpenTK.Mathematics;
+using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -64,11 +65,11 @@ public partial class MapViewModel : ViewModelBase
     public static MapInfo[] MapInfos =
     [
         new(
-            "Helios",
-            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+            "Asteria",
+            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
             "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.014f, 0, 128, 92, 12800, true
+            0.01375f, 132, 140, 90, 12800, true
         ),
         new(
             "Rufus",
@@ -78,6 +79,13 @@ public partial class MapViewModel : ViewModelBase
             0.0155f, 256, 448, 102, 12800, true
         ),
         new(
+            "Helios",
+            "FortniteGame/Content/Athena/Helios/Maps/Helios_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.014f, 0, 128, 92, 12800, true
+        ),
+        new(
             "Apollo_Retro",
             "FortniteGame/Plugins/GameFeatures/Clyde/Content/Apollo_Terrain_Retro",
             "FortniteGame/Content/Athena/Apollo/Maps/Clyde/Textures/Week3_Adjusted",
@@ -85,25 +93,40 @@ public partial class MapViewModel : ViewModelBase
             0.032f, -25, 96, 205, 12800, true
         ),
         new(
+            "Hermes",
+            "FortniteGame/Plugins/GameFeatures/BRMapCh6/Content/Maps/Hermes_Terrain",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
+            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
+            0.0146f, -100, -25, 96, 12800, true, false
+        ),
+        new(
+            "Figment",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_Map/Content/Athena_Terrain_S01",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/MiniMapAthena_S01_New",
+            "FortniteGame/Plugins/GameFeatures/Figment/Figment_S01_MapUI/Content/T_MiniMap_Mask_Figment",
+            0.017f, 380, 470, 110, 12800, true
+        ),
+        new(
             "BlastBerry",
             "/BlastBerryMap/Maps/BlastBerry_Terrain",
             "/BlastBerry/Minimap/Capture_Iteration_Discovered_BlastBerry",
             "/BlastBerry/MiniMap/T_MiniMap_Mask",
-            0.046f, 32, 168, 300, 12800, false
+            0.023f, -20, 215, 150, 12800, false
         ),
         new(
             "PunchBerry",
-            "FortniteGame/Plugins/GameFeatures/632de27e-4506-41f8-532f-93ac01dc10ca/Content/Maps/PunchBerry_Terrain",
+            "/632de27e-4506-41f8-532f-93ac01dc10ca/Maps/PunchBerry_Terrain",
             "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/Discovered_PunchBerry",
             "FortniteGame/Plugins/GameFeatures/BlastBerry/Content/MiniMap/T_PB_MiniMap_Mask",
-            0.0475f, 0, 384, 305, 12800, true
+            0.023f, -20, 215, 150, 12800, true
         ),
         new(
-            "Asteria",
-            "FortniteGame/Content/Athena/Asteria/Maps/Asteria_Terrain",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap",
-            "FortniteGame/Content/Athena/Apollo/Maps/UI/T_MiniMap_Mask",
-            0.01375f, 132, 140, 90, 12800, true
+            "FeralCorgi_2Bombsite_Map",
+            "/e1729c50-4845-01ba-18da-478919f7de66/Levels/FeralCorgi_2Bombsite_Map",
+            "/e1729c50-4845-01ba-18da-478919f7de66/MiniMap/T_KuraiMiniMap_FullAlpha",
+            "/e1729c50-4845-01ba-18da-478919f7de66/MiniMap/T_KuraiMiniMap_FullAlpha",
+            1, 0, 0, 0, 12800, true,
+            SourceName: "Ballistic"
         ),
         MapInfo.CreateNonDisplay("Athena", "FortniteGame/Content/Athena/Maps/Athena_Terrain"),
         MapInfo.CreateNonDisplay("Apollo", "FortniteGame/Content/Athena/Apollo/Maps/Apollo_Terrain")
@@ -112,7 +135,8 @@ public partial class MapViewModel : ViewModelBase
     private static string[] PluginRemoveList =
     [
         "FMJam_",
-        "PunchBerry_Terrain"
+        "PunchBerry_Terrain",
+        "FeralCorgi_2Bombsite_Map"
     ];
 
     public override async Task Initialize()
@@ -149,12 +173,28 @@ public partial class MapViewModel : ViewModelBase
 
         if (Maps.Count == 0)
         {
-            AppWM.Dialog("No Supported Maps", "Failed to find any supported maps for processing.");
+            AppWM.Message("No Supported Maps", "Failed to find any supported maps for processing.");
         }
 
-        foreach (var map in Maps)
+        foreach (var map in Maps.ToArray())
         {
-            await map.Load();
+            try
+            {
+                await map.Load();
+            }
+            catch (Exception e)
+            {
+                AppWM.Dialog("Map Export", $"Failed to load {map.WorldName} for export, skipping.");
+
+                if (IsDebug)
+                {
+                    Log.Error(e.ToString());
+                }
+                else
+                {
+                    Maps.Remove(map);
+                }
+            }
         }
         
     }
@@ -445,16 +485,18 @@ public partial class WorldPartitionMap : ObservableObject
         async Task<int> CollectTileInfos(ULevel level)
         {
             var proxyDetectedCount = 0;
-            foreach (var actor in level.Actors)
+            foreach (var actorLazy in level.Actors)
             {
-                if (!actor.Name.StartsWith("LandscapeStreamingProxy")) continue;
-
-                var landscapeStreamingProxy = await actor.LoadAsync();
-                if (landscapeStreamingProxy is null) continue;
+                if (actorLazy.IsNull) continue;
+                
+                var actor = await actorLazy.LoadAsync();
+                if (actor is null) continue;
+                
+                if (actor is not ALandscapeProxy && actor.ExportType != "Landscape") continue;
 
                 proxyDetectedCount++;
                 
-                var landscapeComponents = landscapeStreamingProxy.GetOrDefault("LandscapeComponents", Array.Empty<UObject>());
+                var landscapeComponents = actor.GetOrDefault("LandscapeComponents", Array.Empty<UObject>());
                 foreach (var landscapeComponent in landscapeComponents)
                 {
                     var x = landscapeComponent.GetOrDefault<int>("SectionBaseX");
@@ -525,7 +567,12 @@ public partial class WorldPartitionMap : ObservableObject
                 {
                     var heightImage = new Image<L16>(2048, 2048);
                     heightImage.Mutate(ctx => ctx.Fill(Info.Name.Equals("Rufus") ? Color.Black : HeightBaseColor));
-                    foreach (var heightTileInfo in heightTileInfos)
+
+                    var minX = Math.Abs(heightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(heightTileInfos.Min(x => x.Y));
+
+                    var normalizedTiles = heightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
+                    foreach (var heightTileInfo in normalizedTiles)
                     {
                         if (heightTileInfo.Image.Width > 128 || heightTileInfo.Image.Height > 128) continue;
                         PixelOperations(heightTileInfo, (color, x, y, _) =>
@@ -555,7 +602,12 @@ public partial class WorldPartitionMap : ObservableObject
                 {
                     var normalImage = new Image<Rgb24>(2048, 2048);
                     normalImage.Mutate(ctx => ctx.Fill(NormalBaseColor));
-                    foreach (var heightTileInfo in heightTileInfos)
+                    
+                    var minX = Math.Abs(heightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(heightTileInfos.Min(x => x.Y));
+
+                    var normalizedTiles = heightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
+                    foreach (var heightTileInfo in normalizedTiles)
                     {
                         if (predicate is not null && !predicate(heightTileInfo)) continue;
                         PixelOperations(heightTileInfo, (color, x, y, _) =>
@@ -584,7 +636,12 @@ public partial class WorldPartitionMap : ObservableObject
                 async Task ExportWeightMap(string layerName, List<MapTextureTileInfo> weightTileInfos, string folderName = "", Predicate<MapTextureTileInfo>? predicate = null)
                 {
                     var weightImage = new Image<L8>(2048, 2048);
-                    foreach (var weightTileInfo in weightTileInfos)
+                    
+                    var minX = Math.Abs(weightTileInfos.Min(x => x.X));
+                    var minY = Math.Abs(weightTileInfos.Min(x => x.Y));
+
+                    var normalizedTiles = weightTileInfos.Select(info => info with { X = info.X + minX, Y = info.Y + minY });
+                    foreach (var weightTileInfo in normalizedTiles)
                     {
                         if (predicate is not null && !predicate(weightTileInfo)) continue;
                         PixelOperations(weightTileInfo, (color, x, y, channel) =>
@@ -678,7 +735,7 @@ public partial class WorldPartitionGrid : ObservableObject
     {
         OriginalPosition = position;
 
-        var rotatedPosition = RotateAboutOrigin(new Vector2(position.X, position.Y), Vector2.Zero);
+        var rotatedPosition = mapInfo.RotateGrid ? RotateAboutOrigin(new Vector2(position.X, position.Y), Vector2.Zero) : new Vector2(position.X, position.Y);
         Position = new FVector(rotatedPosition.X, rotatedPosition.Y, 0);
         MapInfo = mapInfo;
         CellSize = mapInfo.CellSize;
@@ -719,11 +776,11 @@ public enum EMapTextureExportType
     Weight
 }
 
-public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, int MinGridDistance, bool UseMask, bool IsNonDisplay = false, string SourceName = "Battle Royale")
+public record MapInfo(string Name, string MapPath, string MinimapPath, string MaskPath, float Scale, int XOffset, int YOffset, int CellSize, int MinGridDistance, bool UseMask, bool RotateGrid = true, bool IsNonDisplay = false, string SourceName = "Battle Royale")
 {
     public static MapInfo CreateNonDisplay(string name, string mapPath, string sourceName = "Battle Royale")
     {
-        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, 12800, false, true, sourceName);
+        return new MapInfo(name, mapPath, null, null, 0, 0, 0, 0, 12800, false, true, true, sourceName);
     }
     
     public bool IsValid()

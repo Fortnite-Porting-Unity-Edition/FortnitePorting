@@ -429,12 +429,14 @@ public class ExportContext
             var doorRotation = actor.GetOrDefault("DoorRotationOffset", FRotator.ZeroRotator);
             doorRotation.Pitch *= -1;
                 
-            var exportDoorMesh = Mesh(doorMesh)!;
-            exportDoorMesh.Location = doorOffset;
-            exportDoorMesh.Rotation = doorRotation;
-            extraMeshes.AddIfNotNull(exportDoorMesh);
-
-            if (actor.GetOrDefault("bDoubleDoor", false))
+            var exportDoorMesh = Mesh(doorMesh);
+            if (exportDoorMesh != null)
+            {
+                exportDoorMesh.Location = doorOffset;
+                exportDoorMesh.Rotation = doorRotation;
+                extraMeshes.AddIfNotNull(exportDoorMesh);
+            }
+            if (exportDoorMesh != null && actor.GetOrDefault("bDoubleDoor", false))
             {
                 var exportDoubleDoorMesh = exportDoorMesh with
                 {
@@ -664,7 +666,7 @@ public class ExportContext
 
         }
 
-        if (Meta.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy)
+        if (Meta.WorldFlags.HasFlag(EWorldFlags.Landscape) && actor is ALandscapeProxy landscapeProxy && landscapeProxy.ExportType != "Landscape")
         {
             var transform = landscapeProxy.GetAbsoluteTransformFromRootComponent();
             
@@ -826,10 +828,6 @@ public class ExportContext
         {
             exportMesh.OverrideVertexColors = overrideVertexColors.Data;
         }
-
-        exportMesh.Location = meshComponent.RelativeLocation;
-        exportMesh.Rotation = meshComponent.RelativeRotation;
-        exportMesh.Scale = meshComponent.RelativeScale3D;
 
         return exportMesh;
     }
