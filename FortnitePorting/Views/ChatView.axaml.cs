@@ -12,12 +12,12 @@ using Clowd.Clipboard;
 using CommunityToolkit.Mvvm.Input;
 using CUE4Parse.Utils;
 using FluentAvalonia.UI.Controls;
+using FortnitePorting.Framework;
 using FortnitePorting.Models;
 using FortnitePorting.Models.Chat;
 using FortnitePorting.OnlineServices.Models;
 using FortnitePorting.OnlineServices.Packet;
 using FortnitePorting.Services;
-using FortnitePorting.Shared.Framework;
 using FortnitePorting.ViewModels;
 
 namespace FortnitePorting.Views;
@@ -138,5 +138,20 @@ public partial class ChatView : ViewBase<ChatViewModel>
         if (control.DataContext is not ChatMessage message) return;
         
         await OnlineService.Send(new DeleteMessagePacket(), new MetadataBuilder().With("Id", message.Id));
+    }
+
+    private void OnMessageUserPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        
+        FlyoutBase.ShowAttachedFlyout(control);
+    }
+
+    private async void OnReplyPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control control) return;
+        if (control.DataContext is not ChatMessage chatMessage) return;
+
+        await chatMessage.User.SendMessage();
     }
 }

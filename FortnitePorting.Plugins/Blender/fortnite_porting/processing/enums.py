@@ -69,6 +69,8 @@ class EExportType(IntEnum):
     SOUND = auto()
     FONT = auto()
     POSE_ASSET = auto()
+    MATERIAL = auto()
+    MATERIAL_INSTANCE = auto()
 
 
 class EPrimitiveExportType(IntEnum):
@@ -78,6 +80,7 @@ class EPrimitiveExportType(IntEnum):
     SOUND = auto()
     FONT = auto()
     POSE_ASSET = auto()
+    MATERIAL = auto()
 
 
 class EFortCustomPartType(IntEnum):
@@ -98,7 +101,27 @@ class EFortCustomPartType(IntEnum):
 class ETextureImportMethod(IntEnum):
     DATA = 0
     OBJECT = auto()
+
+class EMaterialImportMethod(IntEnum):
+    DATA = 0
+    OBJECT = auto()
     
 class ERigType(IntEnum):
     DEFAULT = 0
     TASTY = auto()
+    
+class EOpElementType(IntEnum):
+    OPERATOR = 0
+    NAME = 1
+    FUNCTION_REF = 2
+    FLOAT = 3
+    
+class EOperator(IntEnum):
+    NEGATE = 0
+    ADD = auto()
+    SUBTRACT = auto()
+    MULTIPLY = auto()
+    DIVIDE = auto()
+    MODULO = auto()
+    POWER = auto()
+    FLOOR_DIVIDE = auto()

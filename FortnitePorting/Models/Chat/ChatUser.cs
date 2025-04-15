@@ -33,7 +33,10 @@ public partial class ChatUser : ObservableObject
     [ObservableProperty] private string _profilePictureURL;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Guid))] private string _id;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Brush))] private ERoleType _role;
-    [ObservableProperty] private string _version;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _version;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(OnlineVersion))] private string _tag;
+
+    public string OnlineVersion => !string.IsNullOrWhiteSpace(Tag) ? $"{Tag} {Version}" : Version;
 
     public Guid Guid => Id.ToFpGuid();
     
@@ -134,7 +137,7 @@ public partial class ChatUser : ObservableObject
                 if (messageBox?.Text is not { } message) return;
 
                 var path = Exporter.FixPath(text);
-                var asset = await CUE4ParseVM.Provider.TryLoadObjectAsync(path);
+                var asset = await CUE4ParseVM.Provider.SafeLoadPackageObjectAsync(path);
                 if (asset is null)
                 {
                     AppWM.Message("Failed to Send Export", $"Could not load \"{text}\"", InfoBarSeverity.Error);
